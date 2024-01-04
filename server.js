@@ -148,3 +148,131 @@ function addDepartment() {
         });
     });
 }
+
+function addRole() {
+    const query = "SELECT * FROM departments";
+    connection.query(query, (err, res) => {
+        if(err) throw err;
+        inquirer
+        .prompt([
+            {
+                type: "input",
+                name: "title",
+                message: "Title of new role:",
+            },
+            {
+                type: "input",
+                name: "salary",
+                message: "Salary of the new role:",
+            },
+            {
+                type: "list",
+                name: "department",
+                message: "Select department:",
+                choices: res.map(
+                    (department) => department.department_name
+                ),
+            }
+        ])
+        .then((answer) => {
+            const department = res.find(
+                (department) => department.name === answer.department
+            );
+            const query = "INSERT INTO roles SET ?";
+            connection.query(
+                query,
+                {
+                    title: answers.title,
+                    salary: answers.salary,
+                    department_id: department,
+                },
+                (err, res) => {
+                    if (err) throw err;
+                    console.log(
+                        `Added role ${answers.title} with salary ${answers.salary} to the ${answers.department} department in the database.`
+                    );
+// restart the application
+                   start(), 
+                }
+            );
+        });
+    });
+}
+function addEmployee() {
+    // retrieve list of roles from the database
+    connection.query("SELECT id, title FROM roles", (error, results) => {
+        if (error) {
+            console.error(error);
+            return;
+        }
+        const roles = results.map(({ id, title }) => ({
+            name: title,
+            value: id,
+        }));
+        // retrieve list of employees from the database to use as managers
+        connection.query(
+            'SELECT id, CONCAT(first_name, " ", last_name FROM employee',
+            (error, results) => {
+                if (error) {
+                    console.error(error);
+                    return;
+                }
+                const managers = results.map(({ id, name }) => ({
+                    name,
+                    value: id,
+                }));
+                // promopt the user for employee information
+                inquirer
+                .prompt ([
+                    {
+                        type: "input",
+                        name: "firstName",
+                        message: "Employee first name:",
+                    },
+                    {
+                        type: "input",
+                        name: "lastName",
+                        message: "Employee last name:",
+                  },
+                  {
+                    type: "list",
+                    name: "roleId",
+                    message: "Select employee role:",
+                    choices: roles,
+                  },
+                  {
+                    type: "list",
+                    name: "managerId",
+                    message: "Select employee manager:",
+                    choices: [
+                        { name: "None", value: null },
+                        ...managers,
+                    ],
+                  },
+                ])
+                .then((answers) => {
+                    // insert the employee into the database
+                    const sql =
+                    "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)";
+                    const values = [
+                        answers.firstName,
+                        answers.lastName,
+                        answers.roleId,
+                        answers.managerId,
+                    ];
+                    connection.query(sql, values, (error) => {
+                        if (error) {
+                            console.error(error);
+                            return;
+                        }
+                        console.log("Employee added successfully.");
+                        start();
+                    });
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+            }
+        );
+    });
+}
