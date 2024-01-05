@@ -1,4 +1,4 @@
-INSERT INTO departments (department_name)
+INSERT INTO department (department_name)
 VALUES
 ('Admin'),
 ('Human Resources'),
@@ -19,7 +19,8 @@ VALUES
 ('Compliance Director', 95000.00, 6),
 ('Executive Management', 110000.00, 7);
 
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
+INSERT INTO employees (first_name, last_name, role_id, manager_id)
+VALUES
 ('Courteney', 'Cox', 1, 1),
 ('Rachel', 'Green', 2, 2),
 ('Phoebe', 'Buffay', 3, 3),

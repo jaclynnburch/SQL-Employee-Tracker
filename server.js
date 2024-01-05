@@ -1,7 +1,5 @@
-const { addAbortListener } = require("events");
 const inquirer = require("inquirer");
 const mysql = require("mysql2");
-const { Query } = require("mysql2/typings/mysql/lib/protocol/sequences/Query");
 require('dotenv').config();
 
 const password = process.env.PASSWORD;
@@ -76,7 +74,7 @@ function start() {
                 employeesByManager();
                 break;
             case "employees by department":
-                employeesByDepartment;
+                employeesByDepartment();
                 break;
             case "Delete Department | Roles | Employees":
                 deleteDepartmentRolesEmployees();
@@ -86,15 +84,15 @@ function start() {
                 break;
             case "exit":
                 connection.end();
-                console.log(Complete.);
+                console.log("Complete.");
                 break;
     }
 });
 }
 
-// function to view all departments
+// function to view all department
 function Departments() {
-    const query = "SELECT * FROM departments";
+    const query = "SELECT * FROM department";
     connection.query(query, (err, res) => {
         if (err) throw err;
         console.table(res);
@@ -105,7 +103,7 @@ function Departments() {
 
 // function to view all roles
 function Roles(){
-    const query = "SELECT roles.title, roles.id, departments.department_name, roles.salary from roles join departments on roles.department_id = departments.id";
+    const query = "SELECT roles.title, roles.id, department.department_name, roles.salary from roles join department on roles.department_id = department.id";
     connection.query(query, (err, res) => {
         if (err) throw err;
         console.table(res);
@@ -118,7 +116,7 @@ function Roles(){
 function Employees() {
     const query =`
     SELECT e.id, e.first_name, r.title, d.department_name, r.salary, CONCAT(m.first_name, '', m.last_name) AS manager_name FROM employee e LEFT JOIN roles r ON e.role_id = r.id
-    LEFT JOIN departments d ON r.department_id = d.id
+    LEFT JOIN department d ON r.department_id = d.id
     LEFT JOIN employee m ON e.manager_id = m.id;`;
     connection.query(query, (err, res) => {
         if (err) throw err;
@@ -138,7 +136,7 @@ function addDepartment() {
     })
     .then((answer) => {
         console.log(answer.name);
-        const query = `INSERT INTO departments (department_name) VALUES ("${answer.name}")`;
+        const query = `INSERT INTO department (department_name) VALUES ("${answer.name}")`;
         connection.query(query, (err, res) => {
             if (err) throw err;
             console.log(`Added department ${answer.name} to database.`);
@@ -150,7 +148,7 @@ function addDepartment() {
 }
 
 function addRole() {
-    const query = "SELECT * FROM departments";
+    const query = "SELECT * FROM department";
     connection.query(query, (err, res) => {
         if(err) throw err;
         inquirer
@@ -192,7 +190,7 @@ function addRole() {
                         `Added role ${answers.title} with salary ${answers.salary} to the ${answers.department} department in the database.`
                     );
 // restart the application
-                   start(), 
+                   start(); 
                 }
             );
         });
@@ -278,7 +276,7 @@ function addEmployee() {
 }
 // function to add a manager
 function addManager() {
-    const queryDepartments = "SELECT * FROM departments";
+    const queryDepartments = "SELECT * FROM department";
     const queryEmployee = "SELECT * FROM employee";
 
     connection.query(queryDepartments, (err, resDepartments) => {
@@ -308,7 +306,7 @@ function addManager() {
 
             .then((answers) => {
                 const department = resDepartments.find(
-                    (departments) =>
+                    (department) =>
                     department.department_name === answers.department
                 );
                 const employee = resEmployees.find(
@@ -471,6 +469,7 @@ function deleteDepartmentRolesEmployees() {
             case "Department":
                 deleteDepartment();
                 break;
+        }
     });
 }
 
