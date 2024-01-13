@@ -3,6 +3,7 @@ SQL Employee Tracker is a command-line application built from scratch to efficie
 
 ## Demo Video
 Check out the demo video for a walkthrough of the application's features.
+https://www.loom.com/share/b93486c857dd4ba3ad549bb154c84648?sid=ce71a4b6-ba27-4257-a1ae-dd67783bd8ea
 
 ## Features
 View all departments
